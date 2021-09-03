@@ -1,18 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-//TODO - 1: Adicione uma tela em branco (Scaffold) e defina a cor de fundo para 'balck12, ou seja criativo e escolha sua própria cor'
-
-//TODO - 2: Crie uma appBar para o aplicativo, como título: 'Calculadora', cor de fundo: 'black, ou seja criativo e escolha sua própria cor'
-
-//TODO - 3: Crie um corpo para o app Utilizando o Widget Column. Dentro dessa coluna inclua um container que temporariamente servirá como nosso display.
-//Altere a propriedade color desse container para: 'white', dê um espaçamento nas margens de: '15'. O width deve ser: '400' e o height: '120'.
-//Exiba o texto 'visor' no centro do container, o tamanho da fonte deve ser: '50'.
-
-//TODO - 4: Crie um novo Container, que receberá um column, que por sua vez receberá vários rows, que por sua vez receberão vários raisedbuttons para criar os botões da nossa calculadora.
-//A calculadora deve ficar com o visual similar ao da imagem apresentada em: https://drive.google.com/file/d/1fuKl3cdlr1J-PsLLmKtStvgeHiaeahO6/view?usp=sharing.
-//Dicas: pesquisem no flutter.dev pelas classes/widgets: 'Expanded' e 'RaisedButton'; As cores podem ser diferentes para os botões,
-//fica a seu critério, porém, a estrutura dos botões deve ser a mesma apresentada na imagem.
+import 'package:math_expressions/math_expressions.dart';
 
 void main() => runApp(MyApp());
 
@@ -38,6 +26,43 @@ class MinhaCalculadora extends StatefulWidget {
 }
 
 class _MinhaCalculadoraState extends State<MinhaCalculadora> {
+  String mensagemVisor = '0';
+
+  //Método para receber os valores e os operadores e criar a expressão que será repassada para a lib
+  setarValor(String valor) {
+    setState(() {
+      if (mensagemVisor == '0') {
+        mensagemVisor = valor;
+      } else {
+        mensagemVisor += valor;
+      }
+    });
+  }
+
+  //Limpa o visor da calculadora
+  void resetar() {
+    setState(() {
+      mensagemVisor = '0';
+    });
+  }
+
+  //Realizar cálculo com equação repassada
+  void realizarCalculo() {
+    //Se houver divisão trocar o caractere ÷ pelo da barra que é reconhecido pela instrução
+    mensagemVisor = mensagemVisor.replaceAll('÷', '/');
+
+    Parser p = Parser();
+    //Nesta linha a expressão matemática será criada de acordo com o que for passado na string
+    Expression expressao = p.parse(mensagemVisor);
+    ContextModel cm = new ContextModel(); //Obtem o contexto da expressão
+    //Nesta linha será realisado de fato o cálculo
+    double resolucaoDaExpressao = expressao.evaluate(EvaluationType.REAL, cm);
+    
+    setState(() {
+      mensagemVisor = resolucaoDaExpressao.toString();
+    });
+  }
+
   final ButtonStyle style =
       ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 30));
 
@@ -45,7 +70,7 @@ class _MinhaCalculadoraState extends State<MinhaCalculadora> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.orangeAccent,
+        backgroundColor: Colors.black,
         title: Text('Calculadora'),
         centerTitle: true,
       ),
@@ -55,12 +80,12 @@ class _MinhaCalculadoraState extends State<MinhaCalculadora> {
           Container(
             width: 400.0,
             height: 120.0,
-            margin: EdgeInsets.all(15.0),
+            margin: EdgeInsets.all(10.0),
             color: Colors.white,
             child: Center(
                 child: Text(
-              'VISOR',
-              style: TextStyle(fontSize: 50),
+              mensagemVisor,
+              style: TextStyle(fontSize: 50, color: Colors.black26),
             )),
           ),
 
@@ -73,19 +98,10 @@ class _MinhaCalculadoraState extends State<MinhaCalculadora> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                  Txtbtn(txt: 'C', corTxt: Colors.blueAccent)
-                        .exibirRow(),
-
-                  Txtbtn(txt: 'DEL', corTxt: Colors.blueAccent)
-                        .exibirRow(), 
-
-                  Txtbtn(txt: '%', corTxt: Colors.blueAccent)
-                        .exibirRow(),
-
-                  Txtbtn(txt: '/', corTxt: Colors.blueAccent)
-                        .exibirRow(),
-
-                  
+                    Txtbtn(txt: 'C', corTxt: Colors.blueAccent).exibirRow(onPress: () => {resetar()}),
+                    Txtbtn(txt: 'DEL', corTxt: Colors.blueAccent).exibirRow(onPress: () => {resetar()}),
+                    Txtbtn(txt: '%', corTxt: Colors.blueAccent).exibirRow(onPress: () => {setarValor('%')}),
+                    Txtbtn(txt: '/', corTxt: Colors.blueAccent).exibirRow(onPress: () => {setarValor('÷')}),
                   ],
                 ),
 
@@ -93,82 +109,45 @@ class _MinhaCalculadoraState extends State<MinhaCalculadora> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                  Txtbtn(txt: '7', corTxt: Colors.white)
-                        .exibirRow(),
-
-                  Txtbtn(txt: '8', corTxt: Colors.white)
-                        .exibirRow(), 
-
-                  Txtbtn(txt: '9', corTxt: Colors.white)
-                        .exibirRow(),
-
-                  Txtbtn(txt: '*', corTxt: Colors.blueAccent)
-                        .exibirRow(),
-
-                  
+                    Txtbtn(txt: '7', corTxt: Colors.white).exibirRow(onPress: () => {setarValor('7')}),
+                    Txtbtn(txt: '8', corTxt: Colors.white).exibirRow(onPress: () => {setarValor('8')}),
+                    Txtbtn(txt: '9', corTxt: Colors.white).exibirRow(onPress: () => {setarValor('9')}),
+                    Txtbtn(txt: '*', corTxt: Colors.blueAccent).exibirRow(onPress: () => {setarValor('*')}),
                   ],
                 ),
 
-                 //Terceira linha
+                //Terceira linha
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                  Txtbtn(txt: '4', corTxt: Colors.white)
-                        .exibirRow(),
-
-                  Txtbtn(txt: '5', corTxt: Colors.white)
-                        .exibirRow(), 
-
-                  Txtbtn(txt: '6', corTxt: Colors.white)
-                        .exibirRow(),
-
-                  Txtbtn(txt: '+', corTxt: Colors.blueAccent)
-                        .exibirRow(),
-
-                  
+                    Txtbtn(txt: '4', corTxt: Colors.white).exibirRow(onPress: () => {setarValor('4')}),
+                    Txtbtn(txt: '5', corTxt: Colors.white).exibirRow(onPress: () => {setarValor('5')}),
+                    Txtbtn(txt: '6', corTxt: Colors.white).exibirRow(onPress: () => {setarValor('6')}),
+                    Txtbtn(txt: '+', corTxt: Colors.blueAccent).exibirRow(onPress: () => {setarValor('+')}),
                   ],
                 ),
 
-                 //quinta linha
+                //quinta linha
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                  Txtbtn(txt: '1', corTxt: Colors.white)
-                        .exibirRow(),
-
-                  Txtbtn(txt: '2', corTxt: Colors.white)
-                        .exibirRow(), 
-
-                  Txtbtn(txt: '3', corTxt: Colors.white)
-                        .exibirRow(),
-
-                  Txtbtn(txt: '-', corTxt: Colors.blueAccent)
-                        .exibirRow(),
-
-                  
+                    Txtbtn(txt: '1', corTxt: Colors.white).exibirRow(onPress: () => {setarValor('1')}),
+                    Txtbtn(txt: '2', corTxt: Colors.white).exibirRow(onPress: () => {setarValor('2')}),
+                    Txtbtn(txt: '3', corTxt: Colors.white).exibirRow(onPress: () => {setarValor('3')}),
+                    Txtbtn(txt: '-', corTxt: Colors.blueAccent).exibirRow(onPress: () => {setarValor('-')}),
                   ],
                 ),
 
-                 //sexta linha
+                //sexta linha
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                  Txtbtn(txt: '0', corTxt: Colors.white)
-                        .exibirRow(),
-
-                  Txtbtn(txt: '.', corTxt: Colors.white)
-                        .exibirRow(),
-
-                  Txtbtn(txt: '=', corTxt: Colors.blueAccent)
-                        .exibirRow(),
-
-                  
+                    Txtbtn(txt: '0', corTxt: Colors.white).exibirRow(onPress: () => {setarValor('0')}),
+                    Txtbtn(txt: '.', corTxt: Colors.white).exibirRow(onPress: () => {setarValor('.')}),
+                    Txtbtn(txt: '=', corTxt: Colors.blueAccent)
+                        .exibirRow(onPress: () => {realizarCalculo()}),
                   ],
                 ),
-
-
-
-
               ],
             ),
           ),
@@ -179,7 +158,6 @@ class _MinhaCalculadoraState extends State<MinhaCalculadora> {
 }
 
 class Txtbtn {
-
   /*
   Class para facilitar a exibição dos digitos
   by Flávio Rocha - github.com/peagape
@@ -188,22 +166,23 @@ class Txtbtn {
   String txt;
   Color corTxt;
 
+  //var tecla;
+
   Txtbtn({this.txt, this.corTxt});
 
-  exibirRow() {
-    
-      return TextButton(
-        style: TextButton.styleFrom(
-          padding: EdgeInsets.all(30.0),
-          primary: this.corTxt,
-          backgroundColor: Colors.black,
-          alignment: Alignment.center,
-          visualDensity: VisualDensity.comfortable,
-          textStyle: const TextStyle(fontSize: 40),
-        ),
-        onPressed: () {},
-        child: Text(this.txt),
-      );
-    
+  exibirRow({Function onPress}){
+
+    return TextButton(
+      style: TextButton.styleFrom(
+        padding: EdgeInsets.all(30.0),
+        primary: this.corTxt,
+        backgroundColor: Colors.black,
+        alignment: Alignment.center,
+        visualDensity: VisualDensity.comfortable,
+        textStyle: const TextStyle(fontSize: 40),
+      ),
+      onPressed: onPress,
+      child: Text(this.txt),
+    );
   }
 }
